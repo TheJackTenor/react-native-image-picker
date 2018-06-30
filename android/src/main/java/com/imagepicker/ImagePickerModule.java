@@ -36,6 +36,7 @@ import com.imagepicker.permissions.OnImagePickerPermissionsCallback;
 import com.imagepicker.utils.MediaUtils.ReadExifResult;
 import com.imagepicker.utils.RealPathUtil;
 import com.imagepicker.utils.UI;
+import com.imagepicker.utils.ReadableMapUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -81,6 +82,9 @@ public class ImagePickerModule extends ReactContextBaseJavaModule
 
   @Deprecated
   private int videoDurationLimit = 0;
+
+  @Deprecated
+  private int cameraIndex = 0;
 
   private ResponseHelper responseHelper = new ResponseHelper();
   private PermissionListener listener = new PermissionListener()
@@ -250,7 +254,18 @@ public class ImagePickerModule extends ReactContextBaseJavaModule
     {
       requestCode = REQUEST_LAUNCH_IMAGE_CAPTURE;
       cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-
+      if (ReadableMapUtils.hasAndNotEmptyString(options, "cameraType"))
+        {
+          final String title = options.getString("cameraType");
+          if (title.equals("front")) {
+            cameraIndex = 1;
+          } else {
+            cameraIndex = 0;
+          }
+        }else {
+          cameraIndex = 0;
+        }
+      cameraIntent.putExtra("android.intent.extras.CAMERA_FACING", cameraIndex);
       final File original = createNewFile(reactContext, this.options, false);
       imageConfig = imageConfig.withOriginalFile(original);
 
